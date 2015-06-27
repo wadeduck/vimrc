@@ -191,7 +191,7 @@ set fileformats=dos,unix,mac
 " Set default encoding
 set encoding=utf-8
 "----------- End of File Format Settings ----------------------------------}}}
-"----------- Editing related Settings ----------------------------------------{{{
+"----------- Editing related Settings -------------------------------------{{{
 " Set cursor move to adjust line
 set whichwrap=b,s,<,>,[,]
 " Auto change directory to current file directory
@@ -339,21 +339,21 @@ if has("autocmd")
         autocmd FileType qf                         nnoremap <buffer> p     :call <SID>QuickfixPreview()<cr>
         autocmd FileType qf                         nnoremap <expr> <buffer> <esc>
                 \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ ':lclose<cr>'
-                \ : ':cclose<cr>'
+                \ ':silent lclose<cr>'
+                \ : ':silent cclose<cr>'
         autocmd FileType qf                         nnoremap <expr> <buffer> <cr>
                 \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ '<cr>:lclose<cr>'
-                \ : '<cr>:cclose<cr>'
+                \ '<cr>:silent lclose<cr>'
+                \ : '<cr>:silent cclose<cr>'
         autocmd FileType qf                         nnoremap <buffer> P     <cr>
         autocmd FileType qf                         nnoremap <expr> <buffer> <c-p>
                 \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ ':lprevious<cr>:lopen 5<cr>'
-                \ : ':cprevious<cr>:copen 5<cr>'
+                \ ':silent lprevious<cr>:lopen 5<cr>'
+                \ : ':silent cprevious<cr>:copen 5<cr>'
         autocmd FileType qf                         nnoremap <expr> <buffer> <c-n>
                 \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ ':lnext<cr>:lopen 5<cr>'
-                \ : ':cnext<cr>:copen 5<cr>'
+                \ ':silent lnext<cr>:lopen 5<cr>'
+                \ : ':silent cnext<cr>:copen 5<cr>'
     augroup END
     augroup FileType_TAGBAR
         autocmd!
@@ -402,51 +402,6 @@ vnoremap <leader>r  :<c-u> call <SID>VimgrepOperator(visualmode())<cr>
 " Set F11 to equalize split windows
 nnoremap <f11>  <esc>:set noequalalways<cr>
                 \:set equalalways<cr>
-" Set CTRL-F12 to generate tags
-"nnoremap <c-f12>    :!ctags -R --c++-kinds=+p --fields=+ialS --extra=+q .<cr>
-nnoremap <c-f12>    :!cscope -bR<cr><cr>
-" Set cscope key mappings (borrowed from cscope_maps.vim)
-if has("cscope")
-    " Map CTRL-\ <op> to cscope find commands, swap 'r' (reference) inplace for 'c'(call)
-    nnoremap <c-\>s     :call <SID>CscopeToQuickfix('s')<cr>
-    nnoremap <c-\>g     :call <SID>CscopeToQuickfix('g')<cr>
-    nnoremap <c-\>r     :call <SID>CscopeToQuickfix('c')<cr>
-    nnoremap <c-\>t     :call <SID>CscopeToQuickfix('t')<cr>
-    nnoremap <c-\>e     :call <SID>CscopeToQuickfix('e')<cr>
-    nnoremap <c-\>f     :call <SID>CscopeToQuickfix('f')<cr>
-    nnoremap <c-\>i     :call <SID>CscopeToQuickfix('i')<cr>
-    nnoremap <c-\>d     :call <SID>CscopeToQuickfix('d')<cr>
-
-    " Same as above, but hold CTRL key for both '\' and <op>, swap 'r' (reference) inplace for 'c'(call)
-    nnoremap <c-\><c-s> :call <SID>CscopeToQuickfix('s')<cr>
-    nnoremap <c-\><c-g> :call <SID>CscopeToQuickfix('g')<cr>
-    nnoremap <c-\><c-r> :call <SID>CscopeToQuickfix('c')<cr>
-    nnoremap <c-\><c-t> :call <SID>CscopeToQuickfix('t')<cr>
-    nnoremap <c-\><c-e> :call <SID>CscopeToQuickfix('e')<cr>
-    nnoremap <c-\><c-f> :call <SID>CscopeToQuickfix('f')<cr>
-    nnoremap <c-\><c-i> :call <SID>CscopeToQuickfix('i')<cr>
-    nnoremap <c-\><c-d> :call <SID>CscopeToQuickfix('d')<cr>
-
-    " Map CTRL-m <op> to cscope find commands, fill quickfix, swap 'r' (reference) inplace for 'c'(call)
-    nnoremap <c-m>s     :cs find s <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>g     :cs find g <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>r     :cs find c <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>t     :cs find t <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>e     :cs find e <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>f     :cs find f <C-R>=expand("<cfile>")<CR><CR>	
-    nnoremap <c-m>i     :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-    nnoremap <c-m>d     :cs find d <C-R>=expand("<cword>")<CR><CR>	
-
-    " Same as above, but hold CTRL key for both 'm' and <op>, fill quickfix, swap 'r' (reference) inplace for 'c'(call)
-    nnoremap <c-m><c-s> :cs find s <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-g> :cs find g <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-r> :cs find c <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-t> :cs find t <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-e> :cs find e <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-f> :cs find f <C-R>=expand("<cfile>")<CR><CR>	
-    nnoremap <c-m><c-i> :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-    nnoremap <c-m><c-d> :cs find d <C-R>=expand("<cword>")<CR><CR>	
-endif
 " Map <c-p>/<c-n> to <up>/<down> in commandline
 cnoremap <c-p>  <up>
 cnoremap <c-n>  <down>
@@ -496,9 +451,13 @@ endif
 " Set ALT-L to switch to Consolas
 if has("gui")
 "    nnoremap <m-j>  <esc>:se guifont=MS_Gothic:h10:cSHIFTJIS<cr>
-    nnoremap <m-c>  <esc>:se guifont=NSimSun:h10:cGB2312<cr>
 "    nnoremap <m-n>  <esc>:se guifont=Terminus:h12<cr>
-    nnoremap <m-l>  <esc>:se guifont=Consolas:h9<cr>
+"    nnoremap <m-c>  <esc>:se guifont=NSimSun:h10:cGB2312<cr>
+    nnoremap <m-l>  <esc>:se guifont=<c-r>=
+                \ (match(&g:guifont, 'Consolas') >=# 0) ?
+                \ 'NSimSun:h10:cGB2312'
+                \ : 'Consolas:h9'<cr>
+                \ <cr>
 endif
 "----------- End of MS-Windows specific settings --------------------------}}}
 "--------------------------------------------------------------------------{{{
@@ -519,6 +478,77 @@ let g:tagbar_autoclose = 1
 let g:tagbar_width = 35
 nnoremap <silent> <f10> <esc>:TagbarToggle<cr>
 "----------- End of Tagbar ------------------------------------------------}}}
+"----------- Cscope Mappings ----------------------------------------------{{{
+" Following are copied from cscope_maps.vim by Jason Duell
+if has("cscope")
+
+    """"""""""""" Standard cscope/vim boilerplate
+
+    " use both cscope and ctag for 'ctrl-]', ':ta', and 'vim -t'
+    set cscopetag
+
+    " check cscope for definition of a symbol before checking ctags: set to 1
+    " if you want the reverse search order.
+    set csto=0
+
+    " add any cscope database in current directory
+    if filereadable("cscope.out")
+        cs add cscope.out  
+    " else add the database pointed to by environment variable 
+    elseif $CSCOPE_DB != ""
+        cs add $CSCOPE_DB
+    endif
+
+    " show msg when any other cscope db added
+    set cscopeverbose  
+endif
+
+" Set CTRL-F12 to generate tags
+"nnoremap <c-f12>    :!ctags -R --c++-kinds=+p --fields=+ialS --extra=+q .<cr>
+nnoremap <c-f12>    :!cscope -bR<cr><cr>
+" Set cscope key mappings (borrowed from cscope_maps.vim)
+if has("cscope")
+    " Map CTRL-\ <op> to cscope find commands, swap 'r' (reference) inplace for 'c'(call)
+    nnoremap <c-\>s     :call <SID>CscopeToQuickfix('s')<cr>
+    nnoremap <c-\>g     :call <SID>CscopeToQuickfix('g')<cr>
+    nnoremap <c-\>r     :call <SID>CscopeToQuickfix('c')<cr>
+    nnoremap <c-\>t     :call <SID>CscopeToQuickfix('t')<cr>
+    nnoremap <c-\>e     :call <SID>CscopeToQuickfix('e')<cr>
+    nnoremap <c-\>f     :call <SID>CscopeToQuickfix('f')<cr>
+    nnoremap <c-\>i     :call <SID>CscopeToQuickfix('i')<cr>
+    nnoremap <c-\>d     :call <SID>CscopeToQuickfix('d')<cr>
+
+    " Same as above, but hold CTRL key for both '\' and <op>, swap 'r' (reference) inplace for 'c'(call)
+    nnoremap <c-\><c-s> :call <SID>CscopeToQuickfix('s')<cr>
+    nnoremap <c-\><c-g> :call <SID>CscopeToQuickfix('g')<cr>
+    nnoremap <c-\><c-r> :call <SID>CscopeToQuickfix('c')<cr>
+    nnoremap <c-\><c-t> :call <SID>CscopeToQuickfix('t')<cr>
+    nnoremap <c-\><c-e> :call <SID>CscopeToQuickfix('e')<cr>
+    nnoremap <c-\><c-f> :call <SID>CscopeToQuickfix('f')<cr>
+    nnoremap <c-\><c-i> :call <SID>CscopeToQuickfix('i')<cr>
+    nnoremap <c-\><c-d> :call <SID>CscopeToQuickfix('d')<cr>
+
+    " Map CTRL-m <op> to cscope find commands, fill quickfix, swap 'r' (reference) inplace for 'c'(call)
+    nnoremap <c-m>s     :cs find s <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m>g     :cs find g <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m>r     :cs find c <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m>t     :cs find t <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m>e     :cs find e <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m>f     :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nnoremap <c-m>i     :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    nnoremap <c-m>d     :cs find d <C-R>=expand("<cword>")<CR><CR>	
+
+    " Same as above, but hold CTRL key for both 'm' and <op>, fill quickfix, swap 'r' (reference) inplace for 'c'(call)
+    nnoremap <c-m><c-s> :cs find s <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m><c-g> :cs find g <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m><c-r> :cs find c <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m><c-t> :cs find t <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m><c-e> :cs find e <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m><c-f> :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nnoremap <c-m><c-i> :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+    nnoremap <c-m><c-d> :cs find d <C-R>=expand("<cword>")<CR><CR>	
+endif
+"----------- Endo of Cscope Mappings --------------------------------------}}}
 "----------- Auto-Popup ---------------------------------------------------{{{
 " Enable Auto-Popup at startup
 let g:acp_enableAtStartup = 1
@@ -547,8 +577,8 @@ let g:acp_completeoptPreview = 0
 "   autocmd FileType    c,cs,cpp,h,hava let g:DoxygenToolkit_returnTag="@return"
 "endif
 "let g:DoxygenToolkit_commentType="C++"
-" ---------- End of DoxygenToolkit ----------------------------------------}}}
-" ---------- NERDTree -----------------------------------------------------{{{
+"----------- End of DoxygenToolkit ----------------------------------------}}}
+"----------- NERDTree -----------------------------------------------------{{{
 " Set F12 to toggle NERDTree
 nnoremap <f12> <esc>:NERDTreeToggle<cr>
 inoremap <f12> <c-o>:NERDTreeToggle<cr>
