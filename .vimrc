@@ -5,9 +5,7 @@
 set nocompatible
 set backupdir=$HOME/.vim/backup/
 set directory=$HOME/.vim/swp/
-set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,
-                \$HOME/.vim/after
-execute pathogen#infect()
+set runtimepath=$VIMRUNTIME,$HOME/.vim,$HOME/.vim/after
 set viminfo=\"100,%10,'10,/50,:50,@10,f1,h,n~/.viminfo
 " Set backup (create *~ file)
 set backup
@@ -18,12 +16,15 @@ set wildmenu
 set wildmode=longest:list
 " Increase command history size
 set history=300
+" Do not refresh window in macro
+set lazyredraw
 let &errorformat =  '"%f"\, line %l: %trror:  #%n: %m'
 let &errorformat .= ',"%f"\, line %l: Error:  #%n-%t: %m'
 let &errorformat .= ',"%f"\, line %l: %tarning:  #%n: %m'
 let &errorformat .= ',"%f"\, line %l: Warning:  #%n-%t: %m'
-" Do not refresh window in macro
-set lazyredraw
+" Set filetype plugin enable
+filetype plugin indent on
+execute pathogen#infect()
 "----------- End of Behavior options --------------------------------------}}}
 "----------- Functions ----------------------------------------------------{{{
 "----------- MyDiff() -----------------------------------------------------{{{
@@ -145,7 +146,7 @@ endfunction
 if has('win32')
     " Override background color
     hi  Normal  guibg=#000000
-    set guifont=Consolas:h9
+    set guifont=Powerline\ Consolas:h9
 endif
 " Maximize gvim window on start
 if has("autocmd")
@@ -456,15 +457,17 @@ if has("gui")
     nnoremap <m-l>  <esc>:se guifont=<c-r>=
                 \ (match(&g:guifont, 'Consolas') >=# 0) ?
                 \ 'NSimSun:h10:cGB2312'
-                \ : 'Consolas:h9'<cr>
+                \ : 'Powerline Consolas:h9'<cr>
                 \ <cr>
 endif
 "----------- End of MS-Windows specific settings --------------------------}}}
 "--------------------------------------------------------------------------{{{
 "----------- plugin settings -------------------------------------------------
 "-----------------------------------------------------------------------------
-" Set filetype plugin enable
-filetype plugin indent on
+"----------- Airline settings ---------------------------------------------{{{
+" Use patched powerline fonts for best look
+let g:airline_powerline_fonts=1
+"----------- End of Airline settings --------------------------------------}}}
 "----------- ctags & Taglist ----------------------------------------------{{{
 " Set the default tags file path
 "set tags=~/vc9tags;./tags
@@ -582,7 +585,7 @@ let g:acp_completeoptPreview = 0
 " Set F12 to toggle NERDTree
 nnoremap <f12> <esc>:NERDTreeToggle<cr>
 inoremap <f12> <c-o>:NERDTreeToggle<cr>
-" ---------- End of NERDTree ----------------------------------------------}}}
+"----------- End of NERDTree ----------------------------------------------}}}
 "----------- EasyMotion settings ------------------------------------------{{{
 " Set EasyMotion trigger key to <leader>
 nmap <leader>   <plug>(easymotion-prefix)
