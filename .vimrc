@@ -5,7 +5,7 @@
 set nocompatible
 set backupdir=$HOME/.vim/backup/
 set directory=$HOME/.vim/swp/
-set runtimepath=$VIMRUNTIME,$HOME/.vim,$HOME/.vim/after
+set runtimepath=$HOME/.vim,$VIMRUNTIME,$HOME/.vim/after,$VIMRUNTIME/after
 set viminfo=\"100,%10,'10,/50,:50,@10,f1,h,n~/.viminfo
 " Set backup (create *~ file)
 set backup
@@ -88,7 +88,7 @@ function! s:VimgrepOperator(type)
     endif
 
     silent execute "vimgrep! /\\V\\<" . @@ . "\\>/j **/*.c **/*.h"
-    let @@ = unnamed_reg 
+    let @@ = unnamed_reg
     copen 5
 endfunction
 "--------------------------------------------------------------------------}}}
@@ -424,7 +424,7 @@ cnoreabbrev <expr> csh
 " Map :mks to save session file in ~/.vim/session folder
 cnoreabbrev <expr> mks
     \ ((getcmdtype() == ':' && getcmdpos() <= 4)?
-    \ 'mks! ~/.vim/session/.vimsession<left><left><left><left><left><left><left><left><left><left><left>'
+    \ 'mks! ~/.vim/session/.vimsession' . repeat('<left>', 11)
     \ . '<c-r>=<SID>Eatchar(''\s'')<cr>'
     \ : 'mks')
 cnoreabbrev <expr> sos
@@ -457,7 +457,7 @@ if has("gui")
     nnoremap <m-l>  <esc>:se guifont=<c-r>=
                 \ (match(&g:guifont, 'Consolas') >=# 0) ?
                 \ 'NSimSun:h10:cGB2312'
-                \ : 'Powerline Consolas:h9'<cr>
+                \ : 'Powerline\ Consolas:h9'<cr>
                 \ <cr>
 endif
 "----------- End of MS-Windows specific settings --------------------------}}}
@@ -496,14 +496,14 @@ if has("cscope")
 
     " add any cscope database in current directory
     if filereadable("cscope.out")
-        cs add cscope.out  
-    " else add the database pointed to by environment variable 
+        cs add cscope.out
+    " else add the database pointed to by environment variable
     elseif $CSCOPE_DB != ""
         cs add $CSCOPE_DB
     endif
 
     " show msg when any other cscope db added
-    set cscopeverbose  
+    set cscopeverbose
 endif
 
 " Set CTRL-F12 to generate tags
@@ -532,24 +532,24 @@ if has("cscope")
     nnoremap <c-\><c-d> :call <SID>CscopeToQuickfix('d')<cr>
 
     " Map CTRL-m <op> to cscope find commands, fill quickfix, swap 'r' (reference) inplace for 'c'(call)
-    nnoremap <c-m>s     :cs find s <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>g     :cs find g <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>r     :cs find c <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>t     :cs find t <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>e     :cs find e <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m>f     :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nnoremap <c-m>s     :cs find s <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m>g     :cs find g <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m>r     :cs find c <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m>t     :cs find t <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m>e     :cs find e <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m>f     :cs find f <C-R>=expand("<cfile>")<CR><CR>
     nnoremap <c-m>i     :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-    nnoremap <c-m>d     :cs find d <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m>d     :cs find d <C-R>=expand("<cword>")<CR><CR>
 
     " Same as above, but hold CTRL key for both 'm' and <op>, fill quickfix, swap 'r' (reference) inplace for 'c'(call)
-    nnoremap <c-m><c-s> :cs find s <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-g> :cs find g <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-r> :cs find c <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-t> :cs find t <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-e> :cs find e <C-R>=expand("<cword>")<CR><CR>	
-    nnoremap <c-m><c-f> :cs find f <C-R>=expand("<cfile>")<CR><CR>	
+    nnoremap <c-m><c-s> :cs find s <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m><c-g> :cs find g <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m><c-r> :cs find c <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m><c-t> :cs find t <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m><c-e> :cs find e <C-R>=expand("<cword>")<CR><CR>
+    nnoremap <c-m><c-f> :cs find f <C-R>=expand("<cfile>")<CR><CR>
     nnoremap <c-m><c-i> :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-    nnoremap <c-m><c-d> :cs find d <C-R>=expand("<cword>")<CR><CR>	
+    nnoremap <c-m><c-d> :cs find d <C-R>=expand("<cword>")<CR><CR>
 endif
 "----------- Endo of Cscope Mappings --------------------------------------}}}
 "----------- Auto-Popup ---------------------------------------------------{{{
