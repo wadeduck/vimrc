@@ -16,6 +16,8 @@ set wildmenu
 set wildmode=longest:list
 " Increase command history size
 set history=300
+" Always show status line
+set laststatus=2
 " Do not refresh window in macro
 set lazyredraw
 let &errorformat =  '"%f"\, line %l: %trror:  #%n: %m'
@@ -173,8 +175,14 @@ set showcmd
 set wrap
 " Set minimal number of screen lines to keep above/below cursor
 set scrolloff=3
-" Set highlight current line (cursorline)
-set cursorline
+" Set highlight current line & column
+if has("autocmd")
+    augroup Highlight_Cursor
+        autocmd!
+        autocmd WinEnter    *   set cursorline cursorcolumn
+        autocmd WinLeave    *   set nocursorline nocursorcolumn
+    augroup END
+endif
 " Set <tab> & trailing space display
 set listchars=tab:>.,trail:.
 " Set split windows always same size
@@ -221,19 +229,6 @@ set textwidth=120
 set foldmethod=syntax
 " Set fold level when vim starts (default 0, all closed)
 set foldlevel=99
-" enable XML folding
-if has("autocmd")
-    augroup FileType_Xml
-        autocmd!
-        autocmd FileType    xml             let g:xml_syntax_folding = 1
-        autocmd FileType    xml             setlocal tabstop=2
-        autocmd FileType    xml             setlocal shiftwidth=2
-    augroup END
-    augroup FileType_vim
-        autocmd!
-        autocmd FileType    vim             setlocal foldmethod=marker
-    augroup END
-endif
 " Set foldmethod to manual during insert
 if has("autocmd")
     augroup InsertMode_Fold
@@ -298,13 +293,25 @@ inoremap }      }<esc>
 " Set 'p' for 'i(' in operator-pending mode
 onoremap p      i(
 
+"----------- File Type Specific autocmd -------------------------------------{{{
 if has("autocmd")
+"----------- Code Files -----------------------------------------------------{{{
     augroup FileType_Code
         autocmd!
-        autocmd FileType    ahk,c,cpp,cs,h,java     set number
-        autocmd FileType    ahk,c,cpp,cs,h,java     set relativenumber
-        autocmd FileType    ahk,c,cpp,cs,h,java     inoremap <buffer>   {<cr>  {<cr>}<esc>ko
+        autocmd FileType    ahk,c,cpp,cs,h,java,python     set number
+        autocmd FileType    ahk,c,cpp,cs,h,java,python     set relativenumber
+        autocmd FileType    ahk,c,cpp,cs,h,java,python     inoremap <buffer>   {<cr>  {<cr>}<esc>ko
     augroup END
+"----------- End of Code Files ----------------------------------------------}}}
+"----------- AHK Code Files -------------------------------------------------{{{
+    augroup FileType_AHK_Code
+        autocmd FileType    ahk                     iabbrev todo    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType    ahk                     iabbrev TODO    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType    ahk                     iabbrev NOTE    ; NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType    ahk                     iabbrev iff     if ()<left><c-r>=<SID>Eatchar('\s')<cr>
+    augroup END
+"----------- End of AHK Code Files ------------------------------------------}}}
+"----------- C Family Code Files --------------------------------------------{{{
     augroup FileType_C_Code
         autocmd!
         autocmd FileType    c,cpp,cs,h,java         set cindent
@@ -318,6 +325,14 @@ if has("autocmd")
         autocmd FileType    c,cpp,cs,h,java         iabbrev iff     if ()<left><c-r>=<SID>Eatchar('\s')<cr>
         autocmd FileType    c,cpp,cs,h,java         inoremap <buffer>   {      {<cr>}<esc>ko
     augroup END
+"----------- End of C Family Files ------------------------------------------}}}
+"----------- FTS Workspace Files --------------------------------------------{{{
+    augroup BufEnter_FTS
+        autocmd!
+        autocmd BufWinEnter *.\(h\|c\|s\)           call <SID>ChangeFtsDirectory()
+    augroup END
+"----------- End of FTS Workspace Files -------------------------------------}}}
+"----------- Python Code Files ----------------------------------------------{{{
     augroup FileType_PY_Code
         autocmd!
         autocmd FileType    python                  iabbrev todo    # TODO: <c-r>=<SID>Eatchar('\s')<cr>
@@ -325,16 +340,8 @@ if has("autocmd")
         autocmd FileType    python                  iabbrev NOTE    # NOTE: <c-r>=<SID>Eatchar('\s')<cr>
         autocmd FileType    python                  iabbrev iff     if :<left><c-r>=<SID>Eatchar('\s')<cr>
     augroup END
-    augroup FileType_AHK_Code
-        autocmd FileType    ahk                     iabbrev todo    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    ahk                     iabbrev TODO    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    ahk                     iabbrev NOTE    ; NOTE: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    ahk                     iabbrev iff     if ()<left><c-r>=<SID>Eatchar('\s')<cr>
-    augroup END
-    augroup BufEnter_FTS
-        autocmd!
-        autocmd BufWinEnter *.\(h\|c\|s\)           call <SID>ChangeFtsDirectory()
-    augroup END
+"----------- End of Python Files --------------------------------------------}}}
+"----------- Quickfix Window ------------------------------------------------{{{
     augroup FileType_QF
         autocmd!
         autocmd FileType qf                         nnoremap <buffer> p     :call <SID>QuickfixPreview()<cr>
@@ -356,11 +363,29 @@ if has("autocmd")
                 \ ':silent lnext<cr>:lopen 5<cr>'
                 \ : ':silent cnext<cr>:copen 5<cr>'
     augroup END
+"----------- End of Quickfix Window -----------------------------------------}}}
+"----------- Tagbar Window --------------------------------------------------{{{
     augroup FileType_TAGBAR
         autocmd!
         autocmd FileType tagbar                     nnoremap <buffer> P     :call <SID>TagbarPreview()<cr>
     augroup END
+"----------- End of Tagbar Window -------------------------------------------}}}
+"----------- VIM Files ------------------------------------------------------{{{
+    augroup FileType_VIM
+        autocmd!
+        autocmd FileType    vim             setlocal foldmethod=marker
+    augroup END
+"----------- End of VIM Files -----------------------------------------------}}}
+"----------- XML Files ------------------------------------------------------{{{
+    augroup FileType_XML
+        autocmd!
+        autocmd FileType    xml             let g:xml_syntax_folding = 1
+        autocmd FileType    xml             setlocal tabstop=2
+        autocmd FileType    xml             setlocal shiftwidth=2
+    augroup END
+"----------- End of XML Files -----------------------------------------------}}}
 endif
+"----------- End of File Type Specific autocmd ------------------------------}}}
 " Use CTRL-U in insert mode to UPPER-CASE current word
 inoremap <c-u>      <esc>viwUea
 " Use ;; to quickly input substitute command
