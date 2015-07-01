@@ -28,135 +28,7 @@ let &errorformat .= ',"%f"\, line %l: Warning:  #%n-%t: %m'
 filetype plugin indent on
 execute pathogen#infect()
 "----------- End of Behavior options --------------------------------------}}}
-"----------- Functions ----------------------------------------------------{{{
-"----------- MyDiff() -----------------------------------------------------{{{
-set diffexpr=MyDiff()
-function! MyDiff()
-  let opt = '-a --binary '
-  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-  let arg1 = v:fname_in
-  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-  let arg2 = v:fname_new
-  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-  let arg3 = v:fname_out
-  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-  let eq = ''
-  if $VIMRUNTIME =~ ' '
-    if &sh =~ '\<cmd'
-      let cmd = '""' . $VIMRUNTIME . '\diff"'
-      let eq = '"'
-    else
-      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-    endif
-  else
-    let cmd = $VIMRUNTIME . '\diff'
-  endif
-  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- Eatchar() ----------------------------------------------------{{{
-function! s:Eatchar(pat)
-  let c = nr2char(getchar(0))
-  return (c =~ a:pat) ? '' : c
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- ChangeFtsDirectory() -----------------------------------------{{{
-function! s:ChangeFtsDirectory()
-    let filepath = expand('%:p:h')
-    let folderpath = matchstr(filepath, '\v\c\w:\\projects\\\w{1,}\\\w{1,}')
-    if empty(folderpath)
-        if !empty(glob(filepath))
-            execute 'lcd ' . filepath
-        endif
-    else
-        execute 'cd ' . folderpath
-    endif
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- VimgrepOperator() --------------------------------------------{{{
-function! s:VimgrepOperator(type)
-    let unnamed_reg = @@
-
-    if a:type ==# 'char'
-        normal! `[v`]y
-    elseif a:type ==# 'v'
-        normal! `<v`>y
-    elseif a:type ==# 'cword'
-        normal! yiw
-    else
-        " Ignore 'line', 'block' or 'V'
-        return
-    endif
-
-    silent execute "vimgrep! /\\V\\<" . @@ . "\\>/j **/*.c **/*.h"
-    let @@ = unnamed_reg
-    copen 5
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- QuickfixPreview() --------------------------------------------{{{
-function! s:QuickfixPreview()
-    let qfwinnr = winnr()
-    if &l:lazyredraw
-        execute "redraw!"
-    endif
-
-    execute "normal! \<cr>"
-    execute qfwinnr . "wincmd w"
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- TagbarPreview() ----------------------------------------------{{{
-function! s:TagbarPreview()
-    let bktagbar_autoclose = &g:tagbar_autoclose
-    &g:tagbar_autoclose = 0
-    execute "normal! \<cr>"
-    &g:tagbar_autoclose = bktagbar_autoclose
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- CscopeToQuickfix() -------------------------------------------{{{
-function! s:CscopeToQuickfix(type)
-    let lcsqf = &l:cscopequickfix
-    let tmpcsqf = ''
-    let cmd = ''
-
-    if a:type ==# 's' || a:type ==# 'g' || a:type ==# 'd' || a:type ==# 'c'
-      \|| a:type ==# 't' || a:type ==# 'e'
-      let tmpcsqf = a:type
-      let cmd = 'lcscope find ' . a:type . ' ' . expand('<cword>')
-    elseif a:type ==# 'f'
-      let tmpcsqf = a:type
-      let cmd = 'lcscope find ' . a:type . ' ' . expand('<cfile>')
-    elseif a:type ==# 'i'
-      let tmpcsqf = a:type
-      let cmd = 'lcscope find ' . a:type . ' ^' . expand('<cfile>') . '$'
-    endif
-
-    if !empty(tmpcsqf) && !empty(cmd)
-        let tmpcsqf .= '-'
-        let &l:cscopequickfix = tmpcsqf
-        execute cmd
-        execute 'lopen 5'
-    endif
-
-    let &l:cscopequickfix = lcsqf
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- End of Functions ---------------------------------------------}}}
 "----------- Display Related Settings -------------------------------------{{{
-" Set colorscheme
-:colorscheme mydarkblue
-if has('win32')
-    " Override background color
-    hi  Normal  guibg=#000000
-    set guifont=Powerline\ Consolas:h9
-endif
-" Maximize gvim window on start
-if has("autocmd")
-    augroup GUIEnter_Maximize
-        autocmd!
-        autocmd GUIEnter    * simalt ~x
-    augroup END
-endif
 " Remove toolbar in gvim
 set guioptions-=T
 " Remove menubar in gvim
@@ -168,7 +40,8 @@ set guioptions-=b
 " Remove left scroll bar when vertical split window
 set guioptions-=egLt
 " Set ruler (row & col number at right bottom corner) on
-set ruler
+" No longer need with Airline
+"set ruler
 " Set display the command characters typed (Unix default off)
 set showcmd
 " Set display wrap long lines
@@ -191,6 +64,24 @@ set listchars=tab:>.,trail:.
 set eadirection=hor " 'ver', 'hor', 'both'
 " Set BackSpace to delete over indent, eol, start of insert
 set backspace=indent,eol,start
+if has('win32')
+    " Override background color
+    hi  Normal  guibg=#000000
+    set guifont=Powerline\ Consolas:h9
+endif
+" Maximize gvim window on start
+if has("autocmd")
+    augroup GUIEnter_Maximize
+        autocmd!
+        autocmd GUIEnter    * simalt ~x
+    augroup END
+endif
+" Set colorscheme
+if !exists('g:colors_name')
+    colorscheme mydarkblue
+elseif (g:colors_name !=? 'mydarkblue')
+    colorscheme mydarkblue
+endif
 " Set "syntax on" option
 syntax on
 "----------- End of Display Related Settings ------------------------------}}}
@@ -298,9 +189,9 @@ if has("autocmd")
 "----------- Code Files -----------------------------------------------------{{{
     augroup FileType_Code
         autocmd!
-        autocmd FileType    ahk,c,cpp,cs,h,java,python     set number
-        autocmd FileType    ahk,c,cpp,cs,h,java,python     set relativenumber
-        autocmd FileType    ahk,c,cpp,cs,h,java,python     inoremap <buffer>   {<cr>  {<cr>}<esc>ko
+        autocmd FileType    ahk,c,cpp,cs,h,java,javascript,python,vim     set number
+        autocmd FileType    ahk,c,cpp,cs,h,java,javascript,python,vim     set relativenumber
+        autocmd FileType    ahk,c,cpp,cs,h,java,javascript,python,vim     inoremap <buffer>   {<cr>  {<cr>}<esc>ko
     augroup END
 "----------- End of Code Files ----------------------------------------------}}}
 "----------- AHK Code Files -------------------------------------------------{{{
@@ -412,6 +303,9 @@ nnoremap <leader>sc :source $MYVIMRC<cr>
 " Use <c-k> <c-j> to move one line up/down in display (for wrapped lines)
 inoremap <c-k>  <c-o>gk
 inoremap <c-j>  <c-o>gj
+" Use <c-e> <c-y> to scroll (without moving cursor) 3 lines a time
+nnoremap <c-e>  3<c-e>
+nnoremap <c-y>  3<c-y>
 " Use <c-n>/<c-p> to switch to next/previous buffer
 nnoremap <c-n>  :bn<cr>
 nnoremap <c-p>  :bp<cr>
@@ -631,10 +525,122 @@ nnoremap <c-tab> :A<cr>
 "----------- End of Alternative File (a.vim) ------------------------------}}}
 "----------- MiniBufExpl --------------------------------------------------{{{
 " Use <leader>t to toggle MBE window
-nnoremap <c-t>   :MBEToggle<cr>
-nnoremap <c-e>   :MBEOpen<cr>
-                \:MBEFocus<cr>
+nnoremap <c-t>   :silent MBEToggle<cr>:silent MBEFocus<cr>
 "----------- End of MiniBufExpl -------------------------------------------}}}
+"----------- Functions ----------------------------------------------------{{{
+"----------- MyDiff() -----------------------------------------------------{{{
+set diffexpr=MyDiff()
+function! MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let eq = ''
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      let cmd = '""' . $VIMRUNTIME . '\diff"'
+      let eq = '"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- Eatchar() ----------------------------------------------------{{{
+function! s:Eatchar(pat)
+  let c = nr2char(getchar(0))
+  return (c =~ a:pat) ? '' : c
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- ChangeFtsDirectory() -----------------------------------------{{{
+function! s:ChangeFtsDirectory()
+    let filepath = expand('%:p:h')
+    let folderpath = matchstr(filepath, '\v\c\w:\\projects\\\w{1,}\\\w{1,}')
+    if empty(folderpath)
+        if !empty(glob(filepath))
+            execute 'lcd ' . filepath
+        endif
+    else
+        execute 'cd ' . folderpath
+    endif
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- VimgrepOperator() --------------------------------------------{{{
+function! s:VimgrepOperator(type)
+    let unnamed_reg = @@
+
+    if a:type ==# 'char'
+        normal! `[v`]y
+    elseif a:type ==# 'v'
+        normal! `<v`>y
+    elseif a:type ==# 'cword'
+        normal! yiw
+    else
+        " Ignore 'line', 'block' or 'V'
+        return
+    endif
+
+    silent execute "vimgrep! /\\V\\<" . @@ . "\\>/j **/*.c **/*.h"
+    let @@ = unnamed_reg
+    copen 5
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- QuickfixPreview() --------------------------------------------{{{
+function! s:QuickfixPreview()
+    let qfwinnr = winnr()
+    if &l:lazyredraw
+        execute "redraw!"
+    endif
+
+    execute "normal! \<cr>"
+    execute qfwinnr . "wincmd w"
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- TagbarPreview() ----------------------------------------------{{{
+function! s:TagbarPreview()
+    let bktagbar_autoclose = &g:tagbar_autoclose
+    &g:tagbar_autoclose = 0
+    execute "normal! \<cr>"
+    &g:tagbar_autoclose = bktagbar_autoclose
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- CscopeToQuickfix() -------------------------------------------{{{
+function! s:CscopeToQuickfix(type)
+    let lcsqf = &l:cscopequickfix
+    let tmpcsqf = ''
+    let cmd = ''
+
+    if a:type ==# 's' || a:type ==# 'g' || a:type ==# 'd' || a:type ==# 'c'
+      \|| a:type ==# 't' || a:type ==# 'e'
+      let tmpcsqf = a:type
+      let cmd = 'lcscope find ' . a:type . ' ' . expand('<cword>')
+    elseif a:type ==# 'f'
+      let tmpcsqf = a:type
+      let cmd = 'lcscope find ' . a:type . ' ' . expand('<cfile>')
+    elseif a:type ==# 'i'
+      let tmpcsqf = a:type
+      let cmd = 'lcscope find ' . a:type . ' ^' . expand('<cfile>') . '$'
+    endif
+
+    if !empty(tmpcsqf) && !empty(cmd)
+        let tmpcsqf .= '-'
+        let &l:cscopequickfix = tmpcsqf
+        execute cmd
+        execute 'lopen 5'
+    endif
+
+    let &l:cscopequickfix = lcsqf
+endfunction
+"--------------------------------------------------------------------------}}}
+"----------- End of Functions ---------------------------------------------}}}
 "=============================================================================
 "=========== Settings End ====================================================
 "=============================================================================
