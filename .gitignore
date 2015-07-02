@@ -1,6 +1,12 @@
 # Ignore everything...
-*
+/*
+/mypy/*
+/mypy/plugin/*
 
 # Except these files
 !.gitignore
 !.vimrc
+!/mypy/
+!/mypy/plugin
+!/mypy/plugin/mypy.vim
+!/mypy/plugin/vimfts.py

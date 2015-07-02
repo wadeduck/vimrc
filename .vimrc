@@ -95,7 +95,7 @@ set encoding=utf-8
 " Set cursor move to adjust line
 set whichwrap=b,s,<,>,[,]
 " Auto change directory to current file directory
-"set autochdir
+set autochdir
 " Set auto completion options
 set completeopt=longest,menu
 " Set complete scan
@@ -149,6 +149,7 @@ set ttimeoutlen=-1
 "let mapleader = ","
 " Correct global typoes using abbreviations
 cabbrev hlep help
+cabbrev ehlp help
 iabbrev teh the
 iabbrev tehn then
 iabbrev waht what
@@ -220,7 +221,7 @@ if has("autocmd")
 "----------- FTS Workspace Files --------------------------------------------{{{
     augroup BufEnter_FTS
         autocmd!
-        autocmd BufWinEnter *.\(h\|c\|s\)           call <SID>ChangeFtsDirectory()
+        autocmd BufWinEnter *.\(h\|c\|s\)           call <SID>FtsWorkspaceCheck()
     augroup END
 "----------- End of FTS Workspace Files -------------------------------------}}}
 "----------- Python Code Files ----------------------------------------------{{{
@@ -527,7 +528,7 @@ nnoremap <c-tab> :A<cr>
 " Use <leader>t to toggle MBE window
 nnoremap <c-t>   :silent MBEToggle<cr>:silent MBEFocus<cr>
 "----------- End of MiniBufExpl -------------------------------------------}}}
-"----------- Functions ----------------------------------------------------{{{
+"----------- Vimscript Functions ------------------------------------------{{{
 "----------- MyDiff() -----------------------------------------------------{{{
 set diffexpr=MyDiff()
 function! MyDiff()
@@ -560,16 +561,19 @@ function! s:Eatchar(pat)
   return (c =~ a:pat) ? '' : c
 endfunction
 "--------------------------------------------------------------------------}}}
-"----------- ChangeFtsDirectory() -----------------------------------------{{{
-function! s:ChangeFtsDirectory()
-    let filepath = expand('%:p:h')
-    let folderpath = matchstr(filepath, '\v\c\w:\\projects\\\w{1,}\\\w{1,}')
-    if empty(folderpath)
-        if !empty(glob(filepath))
-            execute 'lcd ' . filepath
+"----------- FtsWorkspaceCheck() ------------------------------------------{{{
+function! s:FtsWorkspaceCheck()
+    if has("python") && !exists('b:vimfts_isFtsWorkspace')
+        let filepath = expand('%:p:h')
+        let folderpath = matchstr(filepath, '\v\c\w:\\projects\\\w{1,}\\\w{1,}')
+        echom folderpath
+        if !empty(folderpath)
+            " Looks like a FTS workspace
+            let b:vimfts_isFtsWorkspace = 1
+            execute 'python vimfts.ParseWorkspace()'
+        else
+            let b:vimfts_isFtsWorkspace = 0
         endif
-    else
-        execute 'cd ' . folderpath
     endif
 endfunction
 "--------------------------------------------------------------------------}}}
@@ -640,7 +644,9 @@ function! s:CscopeToQuickfix(type)
     let &l:cscopequickfix = lcsqf
 endfunction
 "--------------------------------------------------------------------------}}}
-"----------- End of Functions ---------------------------------------------}}}
+"----------- End of Vimscript Functions -----------------------------------}}}
+"----------- Python Functions ---------------------------------------------{{{
+"----------- End of Python Functions --------------------------------------}}}
 "=============================================================================
 "=========== Settings End ====================================================
 "=============================================================================
