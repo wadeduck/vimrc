@@ -52,8 +52,8 @@ set scrolloff=3
 if has("autocmd")
     augroup Highlight_Cursor
         autocmd!
-        autocmd WinEnter    *   set cursorline cursorcolumn
-        autocmd WinLeave    *   set nocursorline nocursorcolumn
+        autocmd WinEnter    *   set cursorline
+        autocmd WinLeave    *   set nocursorline
     augroup END
 endif
 " Set <tab> & trailing space display
@@ -107,9 +107,9 @@ set smartindent
 " Set expand tab (with space)
 set expandtab
 " Set default Tab space
-set ts=4
-" Set default shiftwidth
-set sw=4
+set tabstop=4
+" Set default shiftwidth (default 0, tabstop value is used)
+"set shiftwidth=4
 " Set default text width
 set textwidth=120
 " Set wrapmargin where a <eol> will be inserted before hitting textwidth
@@ -231,6 +231,7 @@ if has("autocmd")
         autocmd FileType    python                  iabbrev TODO    # TODO: <c-r>=<SID>Eatchar('\s')<cr>
         autocmd FileType    python                  iabbrev NOTE    # NOTE: <c-r>=<SID>Eatchar('\s')<cr>
         autocmd FileType    python                  iabbrev iff     if :<left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType    python                  setlocal cursorcolumn
     augroup END
 "----------- End of Python Files --------------------------------------------}}}
 "----------- Quickfix Window ------------------------------------------------{{{
@@ -273,7 +274,6 @@ if has("autocmd")
         autocmd!
         autocmd FileType    xml             let g:xml_syntax_folding = 1
         autocmd FileType    xml             setlocal tabstop=2
-        autocmd FileType    xml             setlocal shiftwidth=2
     augroup END
 "----------- End of XML Files -----------------------------------------------}}}
 endif
@@ -573,6 +573,30 @@ function! s:FtsWorkspaceCheck()
             execute 'python vimfts.ParseWorkspace()'
         else
             let b:vimfts_isFtsWorkspace = 0
+        endif
+
+        if b:vimfts_isFtsWorkspace ==# 1
+            iabbrev <buffer>    true        TRUE
+            iabbrev <buffer>    false       FALSE
+            iabbrev <buffer>    s8          int8_t s8_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    s8p         int8_t* s8p_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    u8          uint8_t u8_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    u8p         uint8_t* u8p_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    s16         int16_t s16_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    s16p        int16_t* s16p_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    u16         uint16_t u16_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    u16p        uint16_t* u16p_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    s32         int32_t s32_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    s32p        int32_t* s32p_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    u32p        uint32_t* u32p_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    bl          bool_t b_<c-r>=<SID>Eatchar('\s')<cr>
+            iabbrev <buffer>    bool        bool_t
+            iabbrev <buffer>    int8        int8_t
+            iabbrev <buffer>    uint8       uint8_t
+            iabbrev <buffer>    int16       int16_t
+            iabbrev <buffer>    uint16      uint16_t
+            iabbrev <buffer>    int32       int32_t
+            iabbrev <buffer>    uint32      uint32_t
         endif
     endif
 endfunction

@@ -33,9 +33,15 @@ def ParseWorkspace(fn = None, ppath = None):
     m = re.search(r'[c-z]:\\projects\\(?P<ws>\w+)\\(?P<prj>\w+)', ppath)
     if m is None:
         print "vimfts: Workspace and/or Project folder not found!"
-        print ppath
         return
 
     prj = m.group('ws') + '|' + m.group('prj')
+    # Add file to project mapping in dictionary
     dict_fn_prj[fn] = prj
+
+    # If this is new project, add to dictionary; only populate build command
+    # when build command is run
+    if prj not in dict_prj_cfg:
+        dict_prj_cfg[prj] = []
+
     return
