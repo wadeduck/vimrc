@@ -1,6 +1,20 @@
 "=============================================================================
 "=========== Settings Start ==================================================
 "=============================================================================
+"----------- Global variables ---------------------------------------------{{{
+if !exists('g:vimfts_dict_fn_wsprj')
+    " FTS file to workspace | project
+    let g:vimfts_dict_fn_wsprj = {}
+    " FTS workspace | project to all build configurations
+    let g:vimfts_dict_wsprj_cfglst = {}
+    " FTS current workspace
+    let g:vimfts_cur_ws = ''
+    " FTS current project
+    let g:vimfts_cur_prj = ''
+    " FTS workspace | project to last used build config
+    let g:vimfts_dict_wsprj_last_cfg = {}
+endif
+"----------- End of Global variables --------------------------------------}}}
 "----------- Behavior options ---------------------------------------------{{{
 set nocompatible
 set backupdir=$HOME/.vim/backup/
@@ -20,6 +34,7 @@ set history=300
 set laststatus=2
 " Do not refresh window in macro
 set lazyredraw
+" TODO: Shift to proper section of vimrc
 let &errorformat =  '"%f"\, line %l: %trror:  #%n: %m'
 let &errorformat .= ',"%f"\, line %l: Error:  #%n-%t: %m'
 let &errorformat .= ',"%f"\, line %l: %tarning:  #%n: %m'
@@ -109,7 +124,7 @@ set expandtab
 " Set default Tab space
 set tabstop=4
 " Set default shiftwidth (default 0, tabstop value is used)
-"set shiftwidth=4
+set shiftwidth=0
 " Set default text width
 set textwidth=120
 " Set wrapmargin where a <eol> will be inserted before hitting textwidth
@@ -124,8 +139,16 @@ set foldlevel=99
 if has("autocmd")
     augroup InsertMode_Fold
         autocmd!
-        autocmd InsertEnter * if !exists('w:last_fdm') | let w:last_fdm=&foldmethod | setlocal foldmethod=manual | endif
-        autocmd InsertLeave,WinLeave * if exists('w:last_fdm') | let &l:foldmethod=w:last_fdm | unlet w:last_fdm | endif
+        autocmd InsertEnter          *
+            \if !exists('w:last_fdm')           |
+            \   let w:last_fdm=&foldmethod      |
+            \   setlocal foldmethod=manual      |
+            \endif
+        autocmd InsertLeave,WinLeave *
+            \if exists('w:last_fdm')            |
+            \   let &l:foldmethod=w:last_fdm    |
+            \   unlet w:last_fdm                |
+            \endif
     augroup END
 endif
 "----------- End of Folding Options ---------------------------------------}}}
@@ -190,90 +213,99 @@ if has("autocmd")
 "----------- Code Files -----------------------------------------------------{{{
     augroup FileType_Code
         autocmd!
-        autocmd FileType    ahk,c,cpp,cs,h,java,javascript,python,vim     set number
-        autocmd FileType    ahk,c,cpp,cs,h,java,javascript,python,vim     set relativenumber
-        autocmd FileType    ahk,c,cpp,cs,h,java,javascript,python,vim     inoremap <buffer>   {<cr>  {<cr>}<esc>ko
+        autocmd FileType ahk,c,cpp,cs,h,java,javascript,python,vim     setlocal number
+        autocmd FileType ahk,c,cpp,cs,h,java,javascript,python,vim     setlocal relativenumber
+        autocmd FileType ahk,c,cpp,cs,h,java,javascript,python,vim     inoremap <buffer>   {<cr>  {<cr>}<esc>ko
     augroup END
 "----------- End of Code Files ----------------------------------------------}}}
 "----------- AHK Code Files -------------------------------------------------{{{
     augroup FileType_AHK_Code
-        autocmd FileType    ahk                     iabbrev todo    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    ahk                     iabbrev TODO    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    ahk                     iabbrev NOTE    ; NOTE: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    ahk                     iabbrev iff     if ()<left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType ahk    iabbrev <buffer> todo    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType ahk    iabbrev <buffer> TODO    ; TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType ahk    iabbrev <buffer> note    ; NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType ahk    iabbrev <buffer> NOTE    ; NOTE: <c-r>=<SID>Eatchar('\s')<cr>
     augroup END
 "----------- End of AHK Code Files ------------------------------------------}}}
 "----------- C Family Code Files --------------------------------------------{{{
     augroup FileType_C_Code
         autocmd!
-        autocmd FileType    c,cpp,cs,h,java         set cindent
-        autocmd FileType    c,cpp,cs,h,java         let g:load_doxygen_syntax=1
-        autocmd FileType    c,cpp,cs,h,java         iabbrev /*      /*  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         iabbrev todo    /* TODO:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         iabbrev TODO    /* TODO:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         iabbrev note    /* NOTE:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         iabbrev Note    /* NOTE:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         iabbrev NOTE    /* NOTE:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         iabbrev iff     if ()<left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    c,cpp,cs,h,java         inoremap <buffer>   {      {<cr>}<esc>ko
+        autocmd FileType c,cpp,cs,h,java    setlocal cindent
+        autocmd FileType c,cpp,cs,h,java    let g:load_doxygen_syntax=1
+        autocmd FileType c,cpp,cs,h,java    iabbrev  <buffer> /*      /*  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType c,h                iabbrev  <buffer> todo    /* TODO:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType c,h                iabbrev  <buffer> TODO    /* TODO:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType c,h                iabbrev  <buffer> note    /* NOTE:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType c,h                iabbrev  <buffer> Note    /* NOTE:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType c,h                iabbrev  <buffer> NOTE    /* NOTE:  */<left><left><left><c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType cpp,cs,java        iabbrev  <buffer> todo    // TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType cpp,cs,java        iabbrev  <buffer> TODO    // TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType cpp,cs,java        iabbrev  <buffer> note    // NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType cpp,cs,java        iabbrev  <buffer> Note    // NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType cpp,cs,java        iabbrev  <buffer> NOTE    // NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType cpp,cs,java        inoremap <buffer> {      {<cr>}<esc>ko
     augroup END
 "----------- End of C Family Files ------------------------------------------}}}
 "----------- FTS Workspace Files --------------------------------------------{{{
     augroup BufEnter_FTS
         autocmd!
-        autocmd BufWinEnter *.\(h\|c\|s\)           call <SID>FtsWorkspaceCheck()
+        autocmd BufWinEnter *.\(h\|c\|s\)   call <SID>FtsWorkspaceCheck()
     augroup END
 "----------- End of FTS Workspace Files -------------------------------------}}}
 "----------- Python Code Files ----------------------------------------------{{{
     augroup FileType_PY_Code
         autocmd!
-        autocmd FileType    python                  iabbrev todo    # TODO: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    python                  iabbrev TODO    # TODO: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    python                  iabbrev NOTE    # NOTE: <c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    python                  iabbrev iff     if :<left><c-r>=<SID>Eatchar('\s')<cr>
-        autocmd FileType    python                  setlocal cursorcolumn
+        autocmd FileType python     iabbrev  <buffer> todo    # TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType python     iabbrev  <buffer> TODO    # TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType python     iabbrev  <buffer> note    # NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType python     iabbrev  <buffer> NOTE    # NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType python     setlocal cursorcolumn
     augroup END
 "----------- End of Python Files --------------------------------------------}}}
 "----------- Quickfix Window ------------------------------------------------{{{
     augroup FileType_QF
         autocmd!
-        autocmd FileType qf                         nnoremap <buffer> p     :call <SID>QuickfixPreview()<cr>
-        autocmd FileType qf                         nnoremap <expr> <buffer> <esc>
-                \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ ':silent lclose<cr>'
-                \ : ':silent cclose<cr>'
-        autocmd FileType qf                         nnoremap <expr> <buffer> <cr>
-                \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ '<cr>:silent lclose<cr>'
-                \ : '<cr>:silent cclose<cr>'
-        autocmd FileType qf                         nnoremap <buffer> P     <cr>
-        autocmd FileType qf                         nnoremap <expr> <buffer> <c-p>
-                \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ ':silent lprevious<cr>:lopen 5<cr>'
-                \ : ':silent cprevious<cr>:copen 5<cr>'
-        autocmd FileType qf                         nnoremap <expr> <buffer> <c-n>
-                \ (match(w:quickfix_title, 'lcscope') ># -1)?
-                \ ':silent lnext<cr>:lopen 5<cr>'
-                \ : ':silent cnext<cr>:copen 5<cr>'
+        autocmd FileType qf     nnoremap <buffer> p     :call <SID>QuickfixPreview()<cr>
+        autocmd FileType qf     nnoremap <expr> <buffer> <esc>
+                                \ (match(w:quickfix_title, 'lcscope') ># -1)?
+                                \ ':silent lclose<cr>'
+                                \ : ':silent cclose<cr>'
+        autocmd FileType qf     nnoremap <expr> <buffer> <cr>
+                                \ (match(w:quickfix_title, 'lcscope') ># -1)?
+                                \ '<cr>:silent lclose<cr>'
+                                \ : '<cr>:silent cclose<cr>'
+        autocmd FileType qf     nnoremap <buffer> P     <cr>
+        autocmd FileType qf     nnoremap <expr> <buffer> <c-p>
+                                \ (match(w:quickfix_title, 'lcscope') ># -1)?
+                                \ ':silent lprevious<cr>:lopen 5<cr>'
+                                \ : ':silent cprevious<cr>:copen 5<cr>'
+        autocmd FileType qf     nnoremap <expr> <buffer> <c-n>
+                                \ (match(w:quickfix_title, 'lcscope') ># -1)?
+                                \ ':silent lnext<cr>:lopen 5<cr>'
+                                \ : ':silent cnext<cr>:copen 5<cr>'
     augroup END
 "----------- End of Quickfix Window -----------------------------------------}}}
 "----------- Tagbar Window --------------------------------------------------{{{
     augroup FileType_TAGBAR
         autocmd!
-        autocmd FileType tagbar                     nnoremap <buffer> P     :call <SID>TagbarPreview()<cr>
+        autocmd FileType tagbar     nnoremap <buffer> P     :call <SID>TagbarPreview()<cr>
     augroup END
 "----------- End of Tagbar Window -------------------------------------------}}}
 "----------- VIM Files ------------------------------------------------------{{{
     augroup FileType_VIM
         autocmd!
-        autocmd FileType    vim             setlocal foldmethod=marker
+        autocmd FileType vim    setlocal foldmethod=marker
+        " NOTE: Following lines of abbreviation work
+        autocmd FileType vim    iabbrev  <buffer> todo    " TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType vim    iabbrev  <buffer> TODO    " TODO: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType vim    iabbrev  <buffer> note    " NOTE: <c-r>=<SID>Eatchar('\s')<cr>
+        autocmd FileType vim    iabbrev  <buffer> NOTE    " NOTE: <c-r>=<SID>Eatchar('\s')<cr>
     augroup END
 "----------- End of VIM Files -----------------------------------------------}}}
 "----------- XML Files ------------------------------------------------------{{{
     augroup FileType_XML
         autocmd!
-        autocmd FileType    xml             let g:xml_syntax_folding = 1
-        autocmd FileType    xml             setlocal tabstop=2
+        autocmd FileType xml    let g:xml_syntax_folding = 1
+        autocmd FileType xml    setlocal tabstop=2
     augroup END
 "----------- End of XML Files -----------------------------------------------}}}
 endif
@@ -381,8 +413,7 @@ if has("gui")
                 \ <cr>
 endif
 "----------- End of MS-Windows specific settings --------------------------}}}
-"--------------------------------------------------------------------------{{{
-"----------- plugin settings -------------------------------------------------
+"----------- Plugin Settings ----------------------------------------------{{{
 "-----------------------------------------------------------------------------
 "----------- Airline settings ---------------------------------------------{{{
 " Use patched powerline fonts for best look
@@ -528,6 +559,7 @@ nnoremap <c-tab> :A<cr>
 " Use <leader>t to toggle MBE window
 nnoremap <c-t>   :silent MBEToggle<cr>:silent MBEFocus<cr>
 "----------- End of MiniBufExpl -------------------------------------------}}}
+"----------- End of Plugin Settings ---------------------------------------}}}
 "----------- Vimscript Functions ------------------------------------------{{{
 "----------- MyDiff() -----------------------------------------------------{{{
 set diffexpr=MyDiff()
@@ -563,14 +595,18 @@ endfunction
 "--------------------------------------------------------------------------}}}
 "----------- FtsWorkspaceCheck() ------------------------------------------{{{
 function! s:FtsWorkspaceCheck()
-    if has("python") && !exists('b:vimfts_isFtsWorkspace')
-        let filepath = expand('%:p:h')
-        let folderpath = matchstr(filepath, '\v\c\w:\\projects\\\w{1,}\\\w{1,}')
-        echom folderpath
-        if !empty(folderpath)
+    if !exists('b:vimfts_isFtsWorkspace')
+        let filepath = expand('%:p')
+        let matchlst = matchlist(filepath, '\v\c\w:\\projects\\(\w{1,})\\(\w{1,})')
+        if !empty(matchlst)
             " Looks like a FTS workspace
             let b:vimfts_isFtsWorkspace = 1
-            execute 'python vimfts.ParseWorkspace()'
+            if !has_key(g:vimfts_dict_fn_wsprj, filepath)
+                " Add file to dictionary
+                let g:vimfts_dict_fn_wsprj[filepath] = matchlst[1] . '|' . matchlst[2]
+            endif
+            let g:vimfts_cur_ws = matchlst[1]
+            let g:vimfts_cur_prj = matchlst[2]
         else
             let b:vimfts_isFtsWorkspace = 0
         endif
@@ -598,6 +634,10 @@ function! s:FtsWorkspaceCheck()
             iabbrev <buffer>    int32       int32_t
             iabbrev <buffer>    uint32      uint32_t
         endif
+    elseif b:vimfts_isFtsWorkspace ==# 1
+        let matchlst = matchlist(expand('%:p'), '\v\c\w:\\projects\\(\w{1,})\\(\w{1,})')
+        let g:vimfts_cur_ws = matchlst[1]
+        let g:vimfts_cur_prj = matchlst[2]
     endif
 endfunction
 "--------------------------------------------------------------------------}}}
