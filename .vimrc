@@ -414,24 +414,33 @@ if has("gui")
 endif
 "----------- End of MS-Windows specific settings --------------------------}}}
 "----------- Plugin Settings ----------------------------------------------{{{
-"-----------------------------------------------------------------------------
 "----------- Airline settings ---------------------------------------------{{{
 " Use patched powerline fonts for best look
 let g:airline_powerline_fonts=1
 "----------- End of Airline settings --------------------------------------}}}
-"----------- ctags & Taglist ----------------------------------------------{{{
-" Set the default tags file path
-"set tags=~/vc9tags;./tags
-"set tags=./tags;../tags;../../tags;../../../tags;../../../../tags;~/tags;~/vmshproj/*/tags;E:\My\ Documents\Visual\ Studio\ 2008\Projects\tags
-set tags=./tags,./TAGS,tags,TAGS,../tags,../../tags,../../../tags
-" Set ctags program for windows
-"----------- End of ctags & Taglist ---------------------------------------}}}
-"----------- Tagbar -------------------------------------------------------{{{
-let g:tagbar_left = 1
-let g:tagbar_autoclose = 1
-let g:tagbar_width = 35
-nnoremap <silent> <f10> <esc>:TagbarToggle<cr>
-"----------- End of Tagbar ------------------------------------------------}}}
+"----------- Alternative File (a.vim) -------------------------------------{{{
+" Use <c-tab> to switch between alternative files
+nnoremap <c-tab> :A<cr>
+"----------- End of Alternative File (a.vim) ------------------------------}}}
+"----------- Auto-Popup ---------------------------------------------------{{{
+" Enable Auto-Popup at startup
+let g:acp_enableAtStartup = 1
+" Set case sensitive in auto-popup
+let g:acp_ignorecaseOption = 1
+" Use <tab> Key to switch to next auto-completion item
+" Use <ctrl-tab> Key to switch to previous auto-completion item
+" Use <ctrl-l> Key to insert <tab>
+let g:acp_behaviorKeywordCommand = "\<c-n>"
+inoremap <c-l> <tab>
+inoremap <tab> <c-n>
+inoremap <c-tab> <c-p>
+" Set auto-popup from the 2nd letter on
+let g:acp_behaviorKeywordLength = 3
+" Set auto-popup completion range
+let g:acp_completeOption = ".,w,b"
+" Set 'preview' option for completion
+let g:acp_completeoptPreview = 0
+"----------- End of Auto-Popup --------------------------------------------}}}
 "----------- Cscope Mappings ----------------------------------------------{{{
 " Following are copied from cscope_maps.vim by Jason Duell
 if has("cscope")
@@ -503,40 +512,11 @@ if has("cscope")
     nnoremap <c-m><c-d> :cs find d <C-R>=expand("<cword>")<CR><CR>
 endif
 "----------- Endo of Cscope Mappings --------------------------------------}}}
-"----------- Auto-Popup ---------------------------------------------------{{{
-" Enable Auto-Popup at startup
-let g:acp_enableAtStartup = 1
-" Set case sensitive in auto-popup
-let g:acp_ignorecaseOption = 1
-" Use <tab> Key to switch to next auto-completion item
-" Use <ctrl-tab> Key to switch to previous auto-completion item
-" Use <ctrl-l> Key to insert <tab>
-let g:acp_behaviorKeywordCommand = "\<c-n>"
-inoremap <c-l> <tab>
-inoremap <tab> <c-n>
-inoremap <c-tab> <c-p>
-" Set auto-popup from the 2nd letter on
-let g:acp_behaviorKeywordLength = 3
-" Set auto-popup completion range
-let g:acp_completeOption = ".,w,b"
-" Set 'preview' option for completion
-let g:acp_completeoptPreview = 0
-"----------- End of Auto-Popup --------------------------------------------}}}
-" ---------- DoxygenToolkit -----------------------------------------------{{{
-"if has("autocmd")
-"   autocmd FileType    c,cpp,cs,h,java let g:DoxygenToolkit_commentType="C++"
-"   autocmd FileType    c,cpp,cs,h,java let g:DoxygenToolkit_authorName="Zhao Wenhe"
-"   autocmd FileType    c,cs,cpp,h,java let g:DoxygenToolkit_briefTag_pre="@brief   "
-"   autocmd FileType    c,cs,cpp,h,java let g:DoxygenToolkit_paramTag_pre="@param [in]"
-"   autocmd FileType    c,cs,cpp,h,hava let g:DoxygenToolkit_returnTag="@return"
-"endif
-"let g:DoxygenToolkit_commentType="C++"
+"----------- DoxygenToolkit -----------------------------------------------{{{
+" Set Alt-D to generate function comments
+nnoremap <m-d> <esc>:Dox<cr>
+let g:Doxy_LoadMenus='no'
 "----------- End of DoxygenToolkit ----------------------------------------}}}
-"----------- NERDTree -----------------------------------------------------{{{
-" Set F12 to toggle NERDTree
-nnoremap <f12> <esc>:NERDTreeToggle<cr>
-inoremap <f12> <c-o>:NERDTreeToggle<cr>
-"----------- End of NERDTree ----------------------------------------------}}}
 "----------- EasyMotion settings ------------------------------------------{{{
 " Set EasyMotion trigger key to <leader>
 nmap <leader>   <plug>(easymotion-prefix)
@@ -546,19 +526,25 @@ nmap <m-j>      <plug>(easymotion-j)
 nmap <m-k>      <plug>(easymotion-k)
 nmap <m-s>      <plug>(easymotion-s)
 "----------- End of EasyMotion settings -----------------------------------}}}
-"----------- DoxygenToolkit -----------------------------------------------{{{
-" Set Alt-D to generate function comments
-nnoremap <m-d> <esc>:Dox<cr>
-let g:Doxy_LoadMenus='no'
-"----------- End of DoxygenToolkit ----------------------------------------}}}
-"----------- Alternative File (a.vim) -------------------------------------{{{
-" Use <c-tab> to switch between alternative files
-nnoremap <c-tab> :A<cr>
-"----------- End of Alternative File (a.vim) ------------------------------}}}
 "----------- MiniBufExpl --------------------------------------------------{{{
 " Use <leader>t to toggle MBE window
 nnoremap <c-t>   :silent MBEToggle<cr>:silent MBEFocus<cr>
 "----------- End of MiniBufExpl -------------------------------------------}}}
+"----------- NERDTree -----------------------------------------------------{{{
+" Set F12 to toggle NERDTree
+nnoremap <f12> <esc>:NERDTreeToggle<cr>
+inoremap <f12> <c-o>:NERDTreeToggle<cr>
+"----------- End of NERDTree ----------------------------------------------}}}
+"----------- Tagbar -------------------------------------------------------{{{
+let g:tagbar_left = 1
+let g:tagbar_autoclose = 1
+let g:tagbar_width = 35
+nnoremap <silent> <f10> <esc>:TagbarToggle<cr>
+"----------- End of Tagbar ------------------------------------------------}}}
+"----------- UltiSnips Settings -------------------------------------------{{{
+" Set private UltiSnips snippets folder
+let g:UltiSnipsSnippetsDir = expand('$HOME/.vim/UltiSnips')
+"----------- End of UltiSnips Settings ------------------------------------}}}
 "----------- End of Plugin Settings ---------------------------------------}}}
 "----------- Vimscript Functions ------------------------------------------{{{
 "----------- MyDiff() -----------------------------------------------------{{{
@@ -603,7 +589,7 @@ function! s:FtsWorkspaceCheck()
             let b:vimfts_isFtsWorkspace = 1
             if !has_key(g:vimfts_dict_fn_wsprj, filepath)
                 " Add file to dictionary
-                let g:vimfts_dict_fn_wsprj[filepath] = matchlst[1] . '|' . matchlst[2]
+                let g:vimfts_dict_fn_wsprj[filepath] = matchlst[0]
             endif
             let g:vimfts_cur_ws = matchlst[1]
             let g:vimfts_cur_prj = matchlst[2]
@@ -612,6 +598,10 @@ function! s:FtsWorkspaceCheck()
         endif
 
         if b:vimfts_isFtsWorkspace ==# 1
+            if !has_key(g:vimfts_dict_wsprj_cfglst, matchlst[0])
+                call <SID>GetCdtBuildConfig(matchlst[0])
+            endif
+
             iabbrev <buffer>    true        TRUE
             iabbrev <buffer>    false       FALSE
             iabbrev <buffer>    s8          int8_t s8_<c-r>=<SID>Eatchar('\s')<cr>
@@ -710,6 +700,29 @@ endfunction
 "--------------------------------------------------------------------------}}}
 "----------- End of Vimscript Functions -----------------------------------}}}
 "----------- Python Functions ---------------------------------------------{{{
+"----------- GetCdtBuildConfig Functions ----------------------------------{{{
+function! s:GetCdtBuildConfig(prjpath)
+    let tmp_wsprj_cfg = 'somenonexistconfig'
+    execute 'python vimfts.GetCdtBuildConfig('
+            \ . shellescape(a:prjpath) . ', '
+            \ . '"tmp_wsprj_cfg"' . ')'
+    if tmp_wsprj_cfg !=# 'somenonexistconfig'
+        let g:vimfts_dict_wsprj_cfglst[a:prjpath] = split(tmp_wsprj_cfg, ',')
+    endif
+endfunction
+"----------- End of GetCdtBuildConfig Functions ---------------------------}}}
+"----------- CdtBuildCmdComplete Functions --------------------------------{{{
+function! CdtBuildCmdComplete(ArgLead, CmdLine, CursorPos)
+    " TODO: Complete build command with currently loaded workspace and projects
+    return ""
+endfunction
+"----------- End of CdtBuildCmdComplete Functions -------------------------}}}
+"----------- CallCdtBuild Functions ---------------------------------------{{{
+function! s:CallCdtBuild(workspace, project, buildcfg)
+    " Pass current workspace, project and build configuration to python
+    " TODO: Continue coding here
+endfunction
+"----------- End of CallCdtBuild Functions --------------------------------}}}
 "----------- End of Python Functions --------------------------------------}}}
 "=============================================================================
 "=========== Settings End ====================================================
