@@ -184,6 +184,7 @@ iabbrev usigend     unsigned
 iabbrev usnigned    unsigned
 iabbrev unsgined    unsigned
 iabbrev unsinged    unsigned
+iabbrev fasle       false
 " Set paired symbols
 inoremap {      {}<left>
 inoremap [      []<left>
@@ -245,12 +246,6 @@ if has("autocmd")
         autocmd FileType cpp,cs,java        inoremap <buffer> {      {<cr>}<esc>ko
     augroup END
 "----------- End of C Family Files ------------------------------------------}}}
-"----------- FTS Workspace Files --------------------------------------------{{{
-    augroup BufEnter_FTS
-        autocmd!
-        autocmd BufWinEnter *.\(h\|c\|s\)   call <SID>FtsWorkspaceCheck()
-    augroup END
-"----------- End of FTS Workspace Files -------------------------------------}}}
 "----------- Python Code Files ----------------------------------------------{{{
     augroup FileType_PY_Code
         autocmd!
@@ -367,6 +362,8 @@ cnoreabbrev <expr> csf
     \ ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs find' : 'csf')
 cnoreabbrev <expr> csk
     \ ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs kill' : 'csk')
+cnoreabbrev <expr> cska
+    \ ((getcmdtype() == ':' && getcmdpos() <= 5)? 'cs kill -1' : 'cska')
 cnoreabbrev <expr> csr
     \ ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs reset' : 'csr')
 cnoreabbrev <expr> css
@@ -464,6 +461,9 @@ if has("cscope")
 
     " show msg when any other cscope db added
     set cscopeverbose
+
+    " use cscope relative path
+    "set cscoperelative
 endif
 
 " Set CTRL-F12 to generate tags
@@ -548,87 +548,35 @@ let g:UltiSnipsSnippetsDir = expand('$HOME/.vim/UltiSnips')
 "----------- End of Plugin Settings ---------------------------------------}}}
 "----------- Vimscript Functions ------------------------------------------{{{
 "----------- MyDiff() -----------------------------------------------------{{{
-set diffexpr=MyDiff()
-function! MyDiff()
-  let opt = '-a --binary '
-  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-  let arg1 = v:fname_in
-  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-  let arg2 = v:fname_new
-  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-  let arg3 = v:fname_out
-  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-  let eq = ''
-  if $VIMRUNTIME =~ ' '
-    if &sh =~ '\<cmd'
-      let cmd = '""' . $VIMRUNTIME . '\diff"'
-      let eq = '"'
-    else
-      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-    endif
-  else
-    let cmd = $VIMRUNTIME . '\diff'
-  endif
-  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-endfunction
+"set diffexpr=MyDiff()
+"function! MyDiff()
+"  let opt = '-a --binary '
+"  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+"  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+"  let arg1 = v:fname_in
+"  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+"  let arg2 = v:fname_new
+"  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+"  let arg3 = v:fname_out
+"  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+"  let eq = ''
+"  if $VIMRUNTIME =~ ' '
+"    if &sh =~ '\<cmd'
+"      let cmd = '""' . $VIMRUNTIME . '\diff"'
+"      let eq = '"'
+"    else
+"      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+"    endif
+"  else
+"    let cmd = $VIMRUNTIME . '\diff'
+"  endif
+"  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+"endfunction
 "--------------------------------------------------------------------------}}}
 "----------- Eatchar() ----------------------------------------------------{{{
 function! s:Eatchar(pat)
   let c = nr2char(getchar(0))
   return (c =~ a:pat) ? '' : c
-endfunction
-"--------------------------------------------------------------------------}}}
-"----------- FtsWorkspaceCheck() ------------------------------------------{{{
-function! s:FtsWorkspaceCheck()
-    if !exists('b:vimfts_isFtsWorkspace')
-        let filepath = expand('%:p')
-        let matchlst = matchlist(filepath, '\v\c\w:\\projects\\(\w{1,})\\(\w{1,})')
-        if !empty(matchlst)
-            " Looks like a FTS workspace
-            let b:vimfts_isFtsWorkspace = 1
-            if !has_key(g:vimfts_dict_fn_wsprj, filepath)
-                " Add file to dictionary
-                let g:vimfts_dict_fn_wsprj[filepath] = matchlst[0]
-            endif
-            let g:vimfts_cur_ws = matchlst[1]
-            let g:vimfts_cur_prj = matchlst[2]
-        else
-            let b:vimfts_isFtsWorkspace = 0
-        endif
-
-        if b:vimfts_isFtsWorkspace ==# 1
-            if !has_key(g:vimfts_dict_wsprj_cfglst, matchlst[0])
-                call <SID>GetCdtBuildConfig(matchlst[0])
-            endif
-
-            iabbrev <buffer>    true        TRUE
-            iabbrev <buffer>    false       FALSE
-            iabbrev <buffer>    s8          int8_t s8_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    s8p         int8_t* s8p_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    u8          uint8_t u8_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    u8p         uint8_t* u8p_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    s16         int16_t s16_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    s16p        int16_t* s16p_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    u16         uint16_t u16_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    u16p        uint16_t* u16p_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    s32         int32_t s32_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    s32p        int32_t* s32p_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    u32p        uint32_t* u32p_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    bl          bool_t b_<c-r>=<SID>Eatchar('\s')<cr>
-            iabbrev <buffer>    bool        bool_t
-            iabbrev <buffer>    int8        int8_t
-            iabbrev <buffer>    uint8       uint8_t
-            iabbrev <buffer>    int16       int16_t
-            iabbrev <buffer>    uint16      uint16_t
-            iabbrev <buffer>    int32       int32_t
-            iabbrev <buffer>    uint32      uint32_t
-        endif
-    elseif b:vimfts_isFtsWorkspace ==# 1
-        let matchlst = matchlist(expand('%:p'), '\v\c\w:\\projects\\(\w{1,})\\(\w{1,})')
-        let g:vimfts_cur_ws = matchlst[1]
-        let g:vimfts_cur_prj = matchlst[2]
-    endif
 endfunction
 "--------------------------------------------------------------------------}}}
 "----------- VimgrepOperator() --------------------------------------------{{{
@@ -700,30 +648,7 @@ endfunction
 "--------------------------------------------------------------------------}}}
 "----------- End of Vimscript Functions -----------------------------------}}}
 "----------- Python Functions ---------------------------------------------{{{
-"----------- GetCdtBuildConfig Functions ----------------------------------{{{
-function! s:GetCdtBuildConfig(prjpath)
-    let tmp_wsprj_cfg = 'somenonexistconfig'
-    execute 'python vimfts.GetCdtBuildConfig('
-            \ . shellescape(a:prjpath) . ', '
-            \ . '"tmp_wsprj_cfg"' . ')'
-    if tmp_wsprj_cfg !=# 'somenonexistconfig'
-        let g:vimfts_dict_wsprj_cfglst[a:prjpath] = split(tmp_wsprj_cfg, ',')
-    endif
-endfunction
-"----------- End of GetCdtBuildConfig Functions ---------------------------}}}
-"----------- CdtBuildCmdComplete Functions --------------------------------{{{
-function! CdtBuildCmdComplete(ArgLead, CmdLine, CursorPos)
-    " TODO: Complete build command with currently loaded workspace and projects
-    return ""
-endfunction
-"----------- End of CdtBuildCmdComplete Functions -------------------------}}}
-"----------- CallCdtBuild Functions ---------------------------------------{{{
-function! s:CallCdtBuild(workspace, project, buildcfg)
-    " Pass current workspace, project and build configuration to python
-    " TODO: Continue coding here
-endfunction
-"----------- End of CallCdtBuild Functions --------------------------------}}}
-"----------- End of Python Functions --------------------------------------}}}
+"----------- End of Python Function ---------------------------------------}}}
 "=============================================================================
 "=========== Settings End ====================================================
 "=============================================================================
