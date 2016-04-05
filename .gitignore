@@ -9,4 +9,5 @@
 !/mypy/
 !/mypy/plugin
 !/mypy/plugin/mypy.vim
+!/mypy/plugin/vimfts.vim
 !/mypy/plugin/vimfts.py
