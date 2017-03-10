@@ -139,16 +139,16 @@ set foldlevel=99
 if has("autocmd")
     augroup InsertMode_Fold
         autocmd!
-        autocmd InsertEnter          *
-            \if !exists('w:last_fdm')           |
-            \   let w:last_fdm=&foldmethod      |
-            \   setlocal foldmethod=manual      |
-            \endif
-        autocmd InsertLeave,WinLeave *
-            \if exists('w:last_fdm')            |
-            \   let &l:foldmethod=w:last_fdm    |
-            \   unlet w:last_fdm                |
-            \endif
+"        autocmd InsertEnter          *
+"            \if !exists('w:last_fdm')           |
+"            \   let w:last_fdm=&foldmethod      |
+"            \   setlocal foldmethod=manual      |
+"            \endif
+"        autocmd InsertLeave,WinLeave *
+"            \if exists('w:last_fdm')            |
+"            \   let &l:foldmethod=w:last_fdm    |
+"            \   unlet w:last_fdm                |
+"            \endif
     augroup END
 endif
 "----------- End of Folding Options ---------------------------------------}}}
@@ -419,8 +419,8 @@ let g:airline_powerline_fonts=1
 " Use <c-tab> to switch between alternative files
 nnoremap <c-tab> :A<cr>
 "----------- End of Alternative File (a.vim) ------------------------------}}}
-"----------- Auto-Popup ---------------------------------------------------{{{
-" Enable Auto-Popup at startup
+"----------- AutoComplPop ---------------------------------------------------{{{
+" Enable AutoComplPop at startup
 let g:acp_enableAtStartup = 1
 " Set case sensitive in auto-popup
 let g:acp_ignorecaseOption = 1
@@ -432,7 +432,7 @@ inoremap <c-l> <tab>
 inoremap <tab> <c-n>
 inoremap <c-tab> <c-p>
 " Set auto-popup from the 2nd letter on
-let g:acp_behaviorKeywordLength = 3
+let g:acp_behaviorKeywordLength = 4
 " Set auto-popup completion range
 let g:acp_completeOption = ".,w,b"
 " Set 'preview' option for completion
@@ -514,8 +514,8 @@ endif
 "----------- Endo of Cscope Mappings --------------------------------------}}}
 "----------- DoxygenToolkit -----------------------------------------------{{{
 " Set Alt-D to generate function comments
-nnoremap <m-d> <esc>:Dox<cr>
-let g:Doxy_LoadMenus='no'
+"nnoremap <m-d> <esc>:Dox<cr>
+"let g:Doxy_LoadMenus='no'
 "----------- End of DoxygenToolkit ----------------------------------------}}}
 "----------- EasyMotion settings ------------------------------------------{{{
 " Set EasyMotion trigger key to <leader>

@@ -18,6 +18,12 @@ endif
 command! -nargs=* -complete=custom,<SID>CdtBuildCmdComplete MyBuild call s:CallCdtBuild(<q-args>)
 "----------- End of User Commands -------------------------------------------}}}
 "----------- Vimscript Functions ------------------------------------------{{{
+"----------- Eatchar() ----------------------------------------------------{{{
+function! s:Eatchar(pat)
+  let c = nr2char(getchar(0))
+  return (c =~ a:pat) ? '' : c
+endfunction
+"--------------------------------------------------------------------------}}}
 "----------- FtsWorkspaceCheck() ------------------------------------------{{{
 function! s:FtsWorkspaceCheck()
     " Skip if run in diff mode
@@ -42,6 +48,7 @@ function! s:FtsWorkspaceCheck()
         endif
 
         if b:vimfts_isFtsWorkspace ==# 1
+            echom "matchlst[0]: " . matchlst[0]
             if !has_key(g:vimfts_dict_wsprj_cfglst, matchlst[0])
                 " Add project build configurations to list
                 call <SID>GetCdtBuildConfig(matchlst[0])
@@ -58,7 +65,7 @@ function! s:FtsWorkspaceCheck()
     endif
 endfunction
 "--------------------------------------------------------------------------}}}
-"----------- SetFtsAbbrev() -----------------------------------------------){{{
+"----------- SetFtsAbbrev() ------------------------------------------------{{{
 function! s:SetFtsAbbrev()
     iabbrev <buffer>    true        TRUE
     iabbrev <buffer>    false       FALSE
@@ -118,7 +125,20 @@ endfunction
 "----------- CdtBuildCmdComplete Function ---------------------------------{{{
 function! s:CdtBuildCmdComplete(ArgLead, CmdLine, CursorPos)
     " TODO: Complete build command with currently loaded workspace and projects
-    echom a:CmdLine
+    let tmplst = matchlist(a:ArgLead, '\v\c(\w{1,})(\s+\w{1,})?(\s+\w{1,})?')
+    let matchlst = []
+    for itm in tmplst
+        if !empty(itm)
+            call add(matchlst, itm)
+        endif
+    endfor
+
+    echom len(matchlst)
+    let mcnt = len(matchlst)
+    if mcnt ==# 2
+    elseif mcnt ==# 3
+    else
+    endif
     return "Apple\nBanana\nCat\nDog"
 endfunction
 "----------- End of CdtBuildCmdComplete Function --------------------------}}}
